@@ -1,0 +1,18 @@
+FROM balenalib/%%BALENA_ARCH%%-debian:buster AS base
+
+RUN apt update && \
+    apt install -y curl
+
+RUN curl -s https://packagecloud.io/install/repositories/kentik/ksynth-agent/script.deb.sh | bash
+
+RUN apt update && \
+	apt install -y chromium ksynth-agent && \
+	apt clean && apt autoclean && apt autoremove && \
+	rm -rf /var/lib/apt/lists/* && \
+	ksynth-agent --install-scamper && \
+	chmod -R +x .ksynth_scamper/
+
+COPY start.sh /
+RUN chmod +x /start.sh
+
+ENTRYPOINT ["/start.sh"]
